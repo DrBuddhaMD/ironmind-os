@@ -1,0 +1,47 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model User {
+  id         String      @id @default(cuid())
+  username   String      @unique
+  password   String      // Hashed
+  role       String      @default("USER") // "ADMIN" or "USER"
+  workouts   Workout[]
+  biometrics Biometric[]
+  habits     Habit[]
+  preferences String? // JSON string for theme/settings
+  createdAt  DateTime    @default(now())
+}
+
+model Workout {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  content   String   // The original text log
+  parsed    String   // JSON of exercises/sets/reps
+  createdAt DateTime @default(now())
+}
+
+model Biometric {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  type      String   // "weight", "bodyfat", etc.
+  value     Float
+  unit      String   @default("lbs")
+  createdAt DateTime @default(now())
+}
+
+model Habit {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  name      String
+  completed Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
